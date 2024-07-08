@@ -1,19 +1,30 @@
+// src/components/Login.jsx
 import React, { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import Spinner from './Spinner';
+import { useNavigate } from 'react-router-dom';
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
+  
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const auth = getAuth();
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
+      navigate('/chat');
+
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,6 +50,7 @@ const Login = ({ setUser }) => {
           Login
         </button>
         {error && <p className="text-red-500 mt-3 text-center">{error}</p>}
+        {loading && <Spinner />}
       </form>
     </div>
   );
